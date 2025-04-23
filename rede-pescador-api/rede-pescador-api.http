@@ -1,0 +1,6 @@
+@rede_pescador_api_HostAddress = http://localhost:5207
+
+GET {{rede_pescador_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
