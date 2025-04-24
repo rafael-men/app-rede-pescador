@@ -164,7 +164,7 @@ namespace rede_pescador_api.Controllers
                 return BadRequest("Nenhum arquivo enviado.");
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _repository.GetByIdAsync(int.Parse(userId));
+            var user = await _repository.GetByUserIdAsync(int.Parse(userId));
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
             var folderPath = Path.Combine("wwwroot", "profile-images");

@@ -71,6 +71,6 @@ public class UserServiceImpl : IUserService
         if (!long.TryParse(userIdClaim, out var userId))
             throw new Exception("Id do Usuário inválido");
 
-        return await _repository.GetByIdAsync(userId);
+        return await _repository.GetByUserIdAsync(userId);
     }
 }

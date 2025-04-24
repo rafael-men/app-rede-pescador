@@ -22,18 +22,18 @@ public class OrderService
 
     public async Task<OrderDTO> CreateOrderAsync(OrderDTO orderDTO)
     {
-        // Validação de enums
+     
         if (!Enum.IsDefined(typeof(DeliveryMethod), orderDTO.DeliveryMethod))
             throw new ArgumentException("Método de entrega inválido. Use 0 (Entrega) ou 1 (Retirada).");
 
-        if (!Enum.IsDefined(typeof(OrderStatus), (int)OrderStatus.AguardandoConfirmacao)) // Opcional, pois é fixo
+        if (!Enum.IsDefined(typeof(OrderStatus), (int)OrderStatus.AguardandoConfirmacao)) 
             throw new ArgumentException("Status inválido para criação do pedido.");
 
-        // Validação de existência
-        var buyer = await _userRepository.GetByIdAsync(orderDTO.BuyerId);
+       
+        var buyer = await _userRepository.GetByUserIdAsync(orderDTO.BuyerId);
         if (buyer == null) throw new Exception("Comprador não encontrado.");
 
-        var seller = await _userRepository.GetByIdAsync(orderDTO.SellerId);
+        var seller = await _userRepository.GetByUserIdAsync(orderDTO.SellerId);
         if (seller == null) throw new Exception("Vendedor não encontrado.");
 
         var product = await _productRepository.GetByIdAsync(orderDTO.ProductId);
@@ -41,7 +41,6 @@ public class OrderService
 
         var order = new Order
         {
-            Id = orderDTO.Id,
             BuyerId = orderDTO.BuyerId,
             SellerId = orderDTO.SellerId,
             ProductId = orderDTO.ProductId,

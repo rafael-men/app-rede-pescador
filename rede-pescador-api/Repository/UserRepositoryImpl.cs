@@ -17,7 +17,7 @@ public class UserRepositoryImpl : IUserRepository
     public async Task<User> GetByPhoneAsync(string phone)
         => await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
 
-    public async Task<User> GetByIdAsync(long id)
+    public async Task<User> GetByUserIdAsync(long id)
         => await _context.Users.FindAsync(id);
 
     public async Task AddAsync(User user)
