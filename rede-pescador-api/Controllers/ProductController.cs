@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using rede_pescador_api.Data;
 using rede_pescador_api.Dto;
+using rede_pescador_api.Models.Enums;
 using rede_pescador_api.Services;
 
 namespace rede_pescador_api.Controllers
@@ -10,15 +13,15 @@ namespace rede_pescador_api.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-
-        public ProductsController(IProductService productService)
+        private readonly AppDbContext _context;
+        public ProductsController(IProductService productService, AppDbContext context)
         {
             _productService = productService;
+            _context = context;
         }
 
 
-        [Authorize(Roles = "CONSUMIDOR")]
-        [Authorize(Roles = "ESTABELECIMENTO")]
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetAll()
         {
@@ -28,8 +31,7 @@ namespace rede_pescador_api.Controllers
 
       
         [HttpGet("{id}")]
-        [Authorize(Roles = "CONSUMIDOR")]
-        [Authorize(Roles = "ESTABELECIMENTO")]
+        [Authorize]
         public async Task<ActionResult<ProductDTO>> GetById(long id)
         {
             var product = await _productService.GetByIdAsync(id);
@@ -69,5 +71,48 @@ namespace rede_pescador_api.Controllers
             await _productService.DeleteProductAsync(id);
             return NoContent();
         }
+
+        [Authorize]
+        [HttpGet("filtros")]
+        public async Task<IActionResult> GetProducts(
+        string tipo = null,
+        bool? available = null,
+        string localization = null) 
+        {
+            var productsQuery = _context.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(tipo))
+            {
+                if (Enum.TryParse<FishTypes>(tipo, true, out var tipoEnum))
+                {
+                    productsQuery = productsQuery.Where(p => p.Tipo == tipoEnum);
+                }
+                else
+                {
+                    return BadRequest("Tipo inválido.");
+                }
+            }            
+            if (available.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.Avaliável == available.Value);
+            }
+            if (!string.IsNullOrEmpty(localization))
+            {
+                var locationParts = localization.Split(" - ");
+
+                if (locationParts.Length == 2)
+                {
+                    string city = locationParts[0].Trim();
+                    string state = locationParts[1].Trim();
+
+                    productsQuery = productsQuery
+                        .Where(p => p.Localizacao.Contains(localization));
+                }
+            }
+
+            var products = await productsQuery.ToListAsync();
+            return Ok(products);
+        }
+
     }
 }

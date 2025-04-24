@@ -29,6 +29,9 @@ namespace rede_pescador_api.Models
         [Column("phone")]
         public string Phone { get; set; }
 
+        [Column("image_url")]
+        public string? ProfileImageUrl { get; set; }
+
         [Required]
         [MaxLength(255)]
         [Column("password")]
@@ -36,8 +39,7 @@ namespace rede_pescador_api.Models
 
         [Required]
         [Column("role")]
-        public string Role { get; set; } // PESCADOR/CONSUMIDOR/ESTABELECIMENTO
-
+        public string Role { get; set; } // PESCADOR CONSUMIDOR ESTABELECIMENTO
         [Required]
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

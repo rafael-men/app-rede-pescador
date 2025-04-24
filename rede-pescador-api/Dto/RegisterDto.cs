@@ -7,4 +7,5 @@ public class RegisterDto
     public string Phone { get; set; }
     public string Password { get; set; }
     public string Role { get; set; }
+    public string? ImageUrl { get; set; }
 }

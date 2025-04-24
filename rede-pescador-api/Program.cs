@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using rede_pescador_api.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +25,15 @@ builder.Host.UseSerilog();
 builder.Services.AddSingleton<Serilog.ILogger>(Log.Logger);
 var evolveLogger = Log.ForContext("SourceContext", "Evolve");
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -103,12 +112,27 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("ESTABELECIMENTO"));
 });
 
+//builder.Services.AddAuthentication(options =>
+//{
+//   options.DefaultScheme = "Cookies";
+//    options.DefaultChallengeScheme = "Google";
+//})
+//.AddCookie("Cookies")
+//.AddGoogle("Google", options =>
+//{
+  // options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+  // options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+  //  options.CallbackPath = "/google-callback"; 
+//});
+
 
 builder.Services.AddScoped<IProductService, ProductServiceImpl>();
 builder.Services.AddScoped<IProductRepository, ProductRepositoryImpl>();
 builder.Services.AddScoped<IUserRepository, UserRepositoryImpl>();
 builder.Services.AddScoped<IUserService, UserServiceImpl>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenServiceImpl>();
+builder.Services.AddScoped<IOrderRepository,OrderRepositoryImpl>();
+builder.Services.AddScoped<OrderService>();
 var app = builder.Build();
 DatabaseMigration.MigrateDatabase(app.Configuration, evolveLogger);
 if (app.Environment.IsDevelopment())
@@ -120,6 +144,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; 
     });
 }
+app.UseCors("AllowAll");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization(); 
