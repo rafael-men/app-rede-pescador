@@ -14,7 +14,7 @@ Consulta de estatísticas e histórico de atividades.
 
 - .NET SDK : Versão 6 ou superior.
 - PostgreSQL : Servidor de banco de dados PostgreSQL instalado e configurado.
-- Docker : Para Orquestrar od Contêineres da aplicação e do Banco de dados.
+- Docker : Para Orquestrar os Contêineres da aplicação e do Banco de dados.
 
 ## Configuração do Ambiente
 
