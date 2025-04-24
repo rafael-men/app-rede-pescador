@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using rede_pescador_api.Models.Enums;
 
 namespace rede_pescador_api.Models
@@ -14,6 +15,18 @@ namespace rede_pescador_api.Models
         [Required]
         [Column("tipo")]
         public FishTypes Tipo  { get; set; }
+
+        [Required]
+        [Column("nome")]
+        public string Nome { get; set; }
+
+        [Required]
+        [Column("localizacao")]
+        public string Localizacao  { get; set; }
+
+        [Required]
+        [Column("descricao")]
+        public string Descricao { get; set; }
 
         [Required]
         [Range(0.1, double.MaxValue)]
@@ -32,6 +45,6 @@ namespace rede_pescador_api.Models
 
         [Required]
         [Column("id_pescador")]
-        public long IdPescador { get; set; } // FK para o pescador
+        public long IdPescador { get; set; }
     }
 }

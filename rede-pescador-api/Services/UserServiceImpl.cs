@@ -1,4 +1,4 @@
-﻿using BCrypt.Net; // ✅ Adicionado
+﻿using BCrypt.Net; 
 using rede_pescador_api.Dto;
 using rede_pescador_api.Models;
 using System.Security.Claims;
@@ -16,9 +16,13 @@ public class UserServiceImpl : IUserService
 
     public async Task<User> RegisterAsync(RegisterDto dto)
     {
-        var existing = await _repository.GetByEmailAsync(dto.Email);
-        if (existing != null)
-            throw new Exception("Email already registered.");
+        var existingEmail = await _repository.GetByEmailAsync(dto.Email);
+        if (existingEmail != null)
+            throw new Exception("Email já está registrado.");
+
+        var existingPhone = await _repository.GetByPhoneAsync(dto.Phone);
+        if (existingPhone != null)
+            throw new Exception("Telefone já está registrado.");
 
         var validRoles = new[] { "PESCADOR", "CONSUMIDOR", "ESTABELECIMENTO" };
         if (!validRoles.Contains(dto.Role?.ToUpper()))
@@ -30,13 +34,18 @@ public class UserServiceImpl : IUserService
             Email = dto.Email,
             Phone = dto.Phone,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Role = dto.Role.ToUpper() 
+            Role = dto.Role.ToUpper(),
+            ProfileImageUrl = dto.ImageUrl
         };
 
         await _repository.AddAsync(user);
         return user;
     }
 
+    public async Task<User?> FindByEmailAsync(string email)
+    {
+        return await _repository.GetByEmailAsync(email);
+    }
 
     public async Task<string> LoginAsync(LoginDto dto)
     {

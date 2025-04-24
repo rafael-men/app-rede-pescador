@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using rede_pescador_api.Dto;
@@ -12,10 +13,14 @@ namespace rede_pescador_api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IUserRepository _repository;
+        private readonly IJwtTokenService _jwtService;
 
-        public AuthController(IUserService userService)
+        public AuthController(IUserService userService, IUserRepository userRepository,IJwtTokenService jwtService)
         {
             _userService = userService;
+            _repository = userRepository;
+            _jwtService = jwtService;
         }
 
 
@@ -34,7 +39,8 @@ namespace rede_pescador_api.Controllers
                         user.Name,
                         user.Email,
                         user.Phone,
-                        user.Role
+                        user.Role,
+                        user.ProfileImageUrl
                     }
                 });
             }
@@ -72,16 +78,47 @@ namespace rede_pescador_api.Controllers
             }
         }
 
+       // [HttpGet("login-google")]
+       // public IActionResult LoginGoogle()
+       // {
+          // var redirectUrl = Url.Action("GoogleCallback", "Auth");
+          //  var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+          // return Challenge(properties, "Google");
+       // }
+
+       // [HttpGet("google-callback")]
+       // public async Task<IActionResult> GoogleCallback()
+       // {
+           // var result = await HttpContext.AuthenticateAsync("Cookies");
+           // var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+
+           // var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+           //  var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+           // var imageUrl = claims?.FirstOrDefault(c => c.Type == "picture")?.Value; 
+
+      
+           // var user = await _userService.FindByEmailAsync(email);
+        
+           // if (user == null)
+           // {
+             //   return BadRequest(new { message = "Usuário não cadastrado." });
+         //   }
+
+         //   var token = _jwtService.GenerateToken(user);
+        //    return Ok(new { token });
+       // }
+
+
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> Me()
         {
             try
             {
-               
+
                 var userPrincipal = User;
 
-               
+
                 var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
@@ -89,13 +126,13 @@ namespace rede_pescador_api.Controllers
                     return Unauthorized(new { error = "Usuário não autenticado." });
                 }
 
-                
+
                 if (!long.TryParse(userIdClaim, out var userId))
                 {
                     return Unauthorized(new { error = "ID do usuário inválido." });
                 }
 
-                
+
                 var user = await _userService.GetUserFromTokenAsync(userPrincipal);
 
                 if (user == null)
@@ -103,7 +140,7 @@ namespace rede_pescador_api.Controllers
                     return NotFound(new { error = "Usuário não encontrado." });
                 }
 
-                
+
                 return Ok(new
                 {
                     user.Id,
@@ -117,6 +154,36 @@ namespace rede_pescador_api.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
+        }
+
+        [HttpPost("foto-perfil")]
+        [Authorize]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("Nenhum arquivo enviado.");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await _repository.GetByIdAsync(int.Parse(userId));
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var folderPath = Path.Combine("wwwroot", "profile-images");
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var filePath = Path.Combine(folderPath, fileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            user.ProfileImageUrl = fileName;
+
+            await _repository.UpdateAsync(user);
+
+            return Ok(new { Message = "Imagem de perfil atualizada com sucesso.", FilePath = filePath });
+
         }
     }
 }
