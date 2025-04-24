@@ -57,7 +57,7 @@ public class ProductServiceImpl : IProductService
 
     public async Task AddProductAsync(ProductDTO productDTO)
     {
-        var pescador = await _userRepository.GetByIdAsync(productDTO.IdPescador);
+        var pescador = await _userRepository.GetByUserIdAsync(productDTO.IdPescador);
         if (pescador == null)
             throw new Exception("IdPescador inválido. Nenhum usuário encontrado com esse ID.");
 
@@ -91,7 +91,7 @@ public class ProductServiceImpl : IProductService
         if (product == null)
             throw new Exception("Produto não encontrado.");
 
-        var pescador = await _userRepository.GetByIdAsync(productDTO.IdPescador);
+        var pescador = await _userRepository.GetByUserIdAsync(productDTO.IdPescador);
         if (pescador == null)
             throw new Exception("IdPescador inválido. Nenhum usuário encontrado com esse ID.");
 

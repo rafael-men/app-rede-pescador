@@ -16,15 +16,15 @@ namespace rede_pescador_api.Controllers
             _orderService = orderService;
         }
 
-        [Authorize(Roles = "ESTABELECIMENTO")]
+        [Authorize(Roles = "PESCADOR")]
         [HttpPost("novo")]
         public async Task<IActionResult> CreateOrderAsync([FromBody] OrderDTO orderDTO)
         {
-            var createdOrder = await _orderService.CreateOrderAsync(orderDTO);
-            return CreatedAtAction(nameof(GetOrderByIdAsync), new { id = createdOrder.Id }, createdOrder);
+            await _orderService.CreateOrderAsync(orderDTO);
+            return Ok("Pedido Criado");
         }
 
-        [Authorize(Roles = "ESTABELECIMENTO")]
+        [Authorize(Roles = "PESCADOR")]
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateOrderStatusAsync(long id, [FromBody] OrderStatus status)
         {
@@ -32,7 +32,7 @@ namespace rede_pescador_api.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "ESTABELECIMENTO")]
+        [Authorize(Roles = "PESCADOR")]
         [HttpGet("usuario/{id}")]
         public async Task<IActionResult> GetOrdersByUserAsync(long id)
         {
@@ -40,13 +40,14 @@ namespace rede_pescador_api.Controllers
             return Ok(orders);
         }
 
-        [Authorize(Roles = "ESTABELECIMENTO")]
+        [Authorize(Roles = "PESCADOR")]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrderByIdAsync(long orderId)
+        public async Task<IActionResult> GetOrderByIdAsync(long id)
         {
-            var order = await _orderService.GetByIdAsync(orderId);
+            var order = await _orderService.GetByIdAsync(id);
             if (order == null) return NotFound();
             return Ok(order);
         }
+
     }
 }

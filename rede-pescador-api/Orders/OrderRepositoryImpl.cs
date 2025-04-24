@@ -21,10 +21,10 @@ namespace rede_pescador_api.Orders
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Order> GetByIdAsync(long orderId)
+        public async Task<Order> GetByIdAsync(long id)
         {
             return await _context.Orders
-                .FirstOrDefaultAsync(o => o.Id == orderId);
+                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<IEnumerable<Order>> GetByUserAsync(long userId)
