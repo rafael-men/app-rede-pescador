@@ -31,5 +31,12 @@ public class UserRepositoryImpl : IUserRepository
         _context.Users.Update(user); 
         await _context.SaveChangesAsync(); 
     }
+
+    public async Task UpdateProfileImageAsync(User user)
+    {
+        _context.Attach(user);
+        _context.Entry(user).Property(u => u.ProfileImageUrl).IsModified = true;
+        await _context.SaveChangesAsync();
+    }
 }
 

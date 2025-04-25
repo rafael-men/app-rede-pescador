@@ -24,9 +24,9 @@ public class UserServiceImpl : IUserService
         if (existingPhone != null)
             throw new Exception("Telefone já está registrado.");
 
-        var validRoles = new[] { "PESCADOR", "CONSUMIDOR", "ESTABELECIMENTO" };
+        var validRoles = new[] { "PESCADOR", "CONSUMIDOR"};
         if (!validRoles.Contains(dto.Role?.ToUpper()))
-            throw new Exception("Role inválida. Deve ser PESCADOR, CONSUMIDOR ou ESTABELECIMENTO.");
+            throw new Exception("Role inválida. Deve ser PESCADOR ou CONSUMIDOR (escreva em caps lock).");
 
         var user = new User
         {
@@ -60,10 +60,14 @@ public class UserServiceImpl : IUserService
     {
         var user = await _repository.GetByPhoneAsync(dto.Phone);
         if (user == null)
-            throw new Exception("Telefone Inválido");
+            throw new Exception("Telefone inválido.");
+
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            throw new Exception("Senha inválida.");
 
         return _jwtService.GenerateToken(user);
     }
+
 
     public async Task<User> GetUserFromTokenAsync(ClaimsPrincipal userPrincipal)
     {
