@@ -146,6 +146,7 @@ namespace rede_pescador_api.Controllers
                     user.Id,
                     user.Name,
                     user.Email,
+                    user.ProfileImageUrl,
                     user.Phone,
                     user.Role
                 });
@@ -163,27 +164,43 @@ namespace rede_pescador_api.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("Nenhum arquivo enviado.");
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _repository.GetByUserIdAsync(int.Parse(userId));
+            // Recupera o ID do usuário autenticado a partir do JWT
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("Usuário não autenticado.");
 
+            if (!int.TryParse(userIdClaim, out var userId))
+                return BadRequest("ID do usuário inválido.");
+
+            var user = await _repository.GetByUserIdAsync(userId);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            // Gera um nome de arquivo único e define o caminho para salvar
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var folderPath = Path.Combine("wwwroot", "profile-images");
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "profile-images");
 
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
             var filePath = Path.Combine(folderPath, fileName);
+
+            // Salva o arquivo no sistema de arquivos
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            user.ProfileImageUrl = fileName;
+            // Atualiza a URL da imagem de perfil do usuário
+            user.ProfileImageUrl = $"/profile-images/{fileName}";
+            await _repository.UpdateProfileImageAsync(user);
 
-            await _repository.UpdateAsync(user);
 
-            return Ok(new { Message = "Imagem de perfil atualizada com sucesso.", FilePath = filePath });
-
+            return Ok(new
+            {
+                Message = "Imagem de perfil atualizada com sucesso.",
+                ImageUrl = user.ProfileImageUrl
+            });
         }
     }
 }

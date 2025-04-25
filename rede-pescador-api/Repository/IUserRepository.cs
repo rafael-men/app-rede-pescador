@@ -1,4 +1,5 @@
-﻿using rede_pescador_api.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using rede_pescador_api.Models;
 
 public interface IUserRepository
 {
@@ -7,5 +8,6 @@ public interface IUserRepository
     Task<User> GetByUserIdAsync(long id);
     Task AddAsync(User user);
     Task UpdateAsync(User user);
+    Task UpdateProfileImageAsync(User user);
 }
 

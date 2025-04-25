@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using rede_pescador_api.Orders;
+using rede_pescador_api.Payments;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -133,6 +134,10 @@ builder.Services.AddScoped<IUserService, UserServiceImpl>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenServiceImpl>();
 builder.Services.AddScoped<IOrderRepository,OrderRepositoryImpl>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<IRatingRepository,RatingRepositoryImpl>();
+builder.Services.AddScoped<RatingService>();
+builder.Services.AddScoped<MercadoPagoService>();
+builder.Services.AddScoped<PaymentService>();
 var app = builder.Build();
 DatabaseMigration.MigrateDatabase(app.Configuration, evolveLogger);
 if (app.Environment.IsDevelopment())
@@ -171,7 +176,7 @@ public static class DatabaseMigration
             {
                 var evolve = new Evolve.Evolve(connection, msg => logger.Information(msg))
                 {
-                    Locations = new[] { "db/migrations" },
+                    Locations = new[] { "db" },
                     IsEraseDisabled = true,
                 };
 

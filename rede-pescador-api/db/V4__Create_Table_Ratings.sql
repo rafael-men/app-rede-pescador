@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS ratings (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    score INTEGER NOT NULL CHECK (score >= 1 AND score <= 5),
+    comment TEXT,
+    rating_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

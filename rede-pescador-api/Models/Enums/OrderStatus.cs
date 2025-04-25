@@ -3,6 +3,7 @@
     public enum OrderStatus
     {
         AguardandoConfirmacao,
+        Confirmado,
         EmTransporte,
         Entregue
     }

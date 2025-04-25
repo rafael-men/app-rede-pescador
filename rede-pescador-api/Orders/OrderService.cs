@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MercadoPago.Resource.Payment;
 using rede_pescador_api.Dto;
 using rede_pescador_api.Models.Enums;
+using rede_pescador_api.Models.Enums.rede_pescador_api.Models.Enums;
 using rede_pescador_api.Orders;
 using rede_pescador_api.Repository;
 
@@ -33,8 +35,6 @@ public class OrderService
         var buyer = await _userRepository.GetByUserIdAsync(orderDTO.BuyerId);
         if (buyer == null) throw new Exception("Comprador não encontrado.");
 
-        var seller = await _userRepository.GetByUserIdAsync(orderDTO.SellerId);
-        if (seller == null) throw new Exception("Vendedor não encontrado.");
 
         var product = await _productRepository.GetByIdAsync(orderDTO.ProductId);
         if (product == null) throw new Exception("Produto não encontrado.");
@@ -42,7 +42,6 @@ public class OrderService
         var order = new Order
         {
             BuyerId = orderDTO.BuyerId,
-            SellerId = orderDTO.SellerId,
             ProductId = orderDTO.ProductId,
             DeliveryMethod = (DeliveryMethod)orderDTO.DeliveryMethod,
             Status = OrderStatus.AguardandoConfirmacao,
@@ -52,19 +51,22 @@ public class OrderService
         await _orderRepository.AddAsync(order);
         return orderDTO;
     }
-
     public async Task UpdateOrderStatusAsync(long orderId, OrderStatus status)
     {
+        // Verifica se o status é válido dentro do enum OrderStatus
         if (!Enum.IsDefined(typeof(OrderStatus), status))
-            throw new ArgumentException("Status de pedido inválido. Use apenas 0 (Aguardando), 1 (Confirmado) ou 2 (Cancelado).");
+            throw new ArgumentException("Status de pedido inválido. Use apenas 0 (Aguardando), 1 (Confirmado), 2 (EmTransporte) ou 3 (Entregue).");
 
+        // Obtém o pedido pelo ID
         var order = await _orderRepository.GetByIdAsync(orderId);
         if (order == null)
             throw new Exception("Pedido não encontrado.");
 
+        // Atualiza o status do pedido
         order.Status = status;
-        await _orderRepository.UpdateAsync(order);
+        await _orderRepository.UpdateAsync(order); 
     }
+
 
     public async Task<IEnumerable<OrderDTO>> GetOrdersByUserAsync(long userId)
     {
@@ -73,7 +75,6 @@ public class OrderService
         {
             Id = order.Id,
             BuyerId = order.BuyerId,
-            SellerId = order.SellerId,
             ProductId = order.ProductId,
             DeliveryMethod = order.DeliveryMethod,
             Status = order.Status,
@@ -91,11 +92,21 @@ public class OrderService
         {
             Id = order.Id,
             BuyerId = order.BuyerId,
-            SellerId = order.SellerId,
             ProductId = order.ProductId,
             DeliveryMethod = order.DeliveryMethod,
             Status = order.Status,
             CreatedAt = order.CreatedAt
         };
+    }
+
+    public async Task MarkAsPaid(long orderId)
+    {
+        var order = await GetByIdAsync(orderId);
+        if (order != null)
+        {
+            order.Status = order.Status = OrderStatus.Confirmado; 
+
+            await UpdateOrderStatusAsync(order.Id, OrderStatus.Confirmado); 
+        }
     }
 }
