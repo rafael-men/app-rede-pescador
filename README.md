@@ -12,7 +12,7 @@ Consulta de estatísticas e histórico de atividades.
 ## Pré-requisitos
 - Para executar esta aplicação localmente, você precisará dos seguintes componentes instalados:
 
-- .NET SDK : Versão 6 ou superior.
+- .NET SDK : Versão 8 ou superior.
 - PostgreSQL : Servidor de banco de dados PostgreSQL instalado e configurado.
 - Docker : Para Orquestrar os Contêineres da aplicação e do Banco de dados.
 
@@ -30,7 +30,7 @@ cd app-rede-pescador
 ```bash
 docker-compose up
 ```
--A aplicação iniciará em http://localhost:5207
+-A aplicação iniciará em http://localhost:5207/index.html
 ### Para finalizar o processo:
 
 ```bash
