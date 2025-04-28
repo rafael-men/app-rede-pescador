@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using rede_pescador_api.Orders;
-using rede_pescador_api.Payments;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,9 +108,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Pescador", policy =>
         policy.RequireRole("PESCADOR"));
 
-    
-    options.AddPolicy("Estabelecimento", policy =>
-        policy.RequireRole("ESTABELECIMENTO"));
 });
 
 //builder.Services.AddAuthentication(options =>
@@ -136,8 +133,6 @@ builder.Services.AddScoped<IOrderRepository,OrderRepositoryImpl>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<IRatingRepository,RatingRepositoryImpl>();
 builder.Services.AddScoped<RatingService>();
-builder.Services.AddScoped<MercadoPagoService>();
-builder.Services.AddScoped<PaymentService>();
 var app = builder.Build();
 DatabaseMigration.MigrateDatabase(app.Configuration, evolveLogger);
 if (app.Environment.IsDevelopment())
