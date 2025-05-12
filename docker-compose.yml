@@ -12,6 +12,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./rede-pescador-api/db:/app/db
 
   postgres:
     image: postgres:16
