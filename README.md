@@ -30,7 +30,8 @@ cd app-rede-pescador
 ```bash
 docker-compose up
 ```
--A aplicação iniciará em http://localhost:5207/index.html
+- A aplicação iniciará em http://localhost:5207
+
 ### Para finalizar o processo:
 
 ```bash
@@ -45,17 +46,7 @@ docker-compose down
 cd rede-pescador-api
 dotnet run
 ```
-
-Por padrão, a API estará disponível em http://localhost:5000 ou https://localhost:5001.
-
-## Testes
-
-Para executar os testes unitários da aplicação, use o seguinte comando:
-
-```bash
-rede-pescador-api
-dotnet test
-```
+- A API estará disponível em **http://localhost:5207**.
 
 ## Contribuição
 
