@@ -1,7 +1,7 @@
 # API REST Rede Pescador
 
 Descrição
-O Rede Pescador é uma API RESTful que permite gerenciar dados relacionados a pescadores, suas redes e atividades de pesca. A aplicação foi desenvolvida utilizando ASP.NET Core (C#) como framework backend e PostgreSQL como banco de dados relacional.
+O Rede Pescador é uma API RESTful parte de um projeto fullstack que permite gerenciar dados relacionados a pescadores, suas redes e atividades de pesca. A aplicação foi desenvolvida utilizando ASP.NET Core (C#) como framework backend e PostgreSQL como banco de dados relacional.
 
 ## Funcionalidades Principais
 Cadastro e autenticação de usuários (pescadores).
